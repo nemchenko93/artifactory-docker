@@ -1,6 +1,3 @@
-### Usage: mkdir -p /var/opt/jfrog/artifactory; export ARTIFACTORY_HOME=/var/opt/jfrog/artifactory; docker run -d --name artifactory-4.6.1 -p 80:80 -p 8081:8081 -p 443:443 -p 5000-5002:5000-5002 -v $ARTIFACTORY_HOME/data:$ARTIFACTORY_HOME/data -v $ARTIFACTORY_HOME/logs:$ARTIFACTORY_HOME/logs -v $ARTIFACTORY_HOME/backup:$ARTIFACTORY_HOME/backup -v $ARTIFACTORY_HOME/etc:$ARTIFACTORY_HOME/etc artifactory-docker-image:4.6.1
-
-
 FROM tomcat:8.0.32-jre8
 
 # To update, check https://bintray.com/jfrog/artifactory/jfrog-artifactory-oss-zip/view
@@ -26,6 +23,8 @@ RUN \
   unzip -j artifactory.zip "artifactory-*/webapps/artifactory.war" -d webapps && \
   rm artifactory.zip
 
+ADD https://jdbc.postgresql.org/download/postgresql-9.4.1208.jar /usr/local/tomcat/lib/
+
 # Expose tomcat runtime options through the RUNTIME_OPTS environment variable.
 #   Example to set the JVM's max heap size to 256MB use the flag
 #   '-e RUNTIME_OPTS="-Xmx256m"' when starting a container.
@@ -35,11 +34,9 @@ RUN echo 'export CATALINA_OPTS="$RUNTIME_OPTS"' > bin/setenv.sh
 RUN mkdir -p /var/opt/jfrog/artifactory
 ENV ARTIFACTORY_HOME /var/opt/jfrog/artifactory
 
-#VOLUME $ARTIFACTORY_HOME/backup
-#VOLUME $ARTIFACTORY_HOME/data
-#VOLUME $ARTIFACTORY_HOME/logs
-#VOLUME $ARTIFACTORY_HOME/etc
+VOLUME $ARTIFACTORY_HOME/backup
+VOLUME $ARTIFACTORY_HOME/data
+VOLUME $ARTIFACTORY_HOME/logs
+VOLUME $ARTIFACTORY_HOME/etc
 
-WORKDIR /var/opt/jfrog/artifactory
-
-#EXPOSE 8080
+WORKDIR $ARTIFACTORY_HOME
